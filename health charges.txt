@@ -1,0 +1,212 @@
+import the librabry
+
+Check for the missing value 
+hence only few of the values are missing to drop is the best way
+
+type casting the age and the bmi columns from float to int data type
+
+check the skewness of the data
+
+male      0.50524
+female    0.49476
+
+Children
+0    0.429641
+1    0.242515
+2    0.179641
+3    0.116766
+4    0.018713
+5    0.012725
+
+Smoker
+no     0.79491
+yes    0.20509
+
+Region
+southeast    0.271707
+southwest    0.243263
+northwest    0.243263
+northeast    0.241766
+
+Even though the data in Children column is more concentrated for 0, 1, 2 and 3 values, we let it as is since this can be a real scenario.
+
+
+Checking the outliers 
+BMI contain the outliers which can be cap from above with the value of 46.75
+
+Check the pairplot we came to conclusion that there is linear relation between the dependent and independent variables.
+
+Using the spearman corr to the data because the data contain ordinal values also adding a heatmap to the corr
+There were no corr between the independent variable
+
+Checking the boxplots to how the categorical variable affect the target variable
+For male the insurance price is higher than that of female. Also, smokers are more claiming much higher insurance price than the non-smokers. Similarly, people from southeast and northeast claim more insurance price than southwest and northwest.
+
+
+Now we will create dummy variables for the categorical values of the data 
+Gender
+Children
+Smoking status
+Location
+After creating the dummy variable we will drop the original variables
+
+
+Checking the charges column distribution which came to be log normal distribution 
+We will transfrom the data to normal distribution using the log transform process
+After using the log transform process the charges column is some what like normal distributed
+
+
+Again checking the corr for the data it came to be that the data do not have much relationship in the independent columns
+
+
+Now we are good to go for model train and model building
+firstly we will use the train test split from the sklearn library for spliting the data into train and test
+we will select 0.75 percent of the data for training and the rest for testing 
+X_train shape:  (1002, 12)
+X_test shape:  (334, 12)
+y_train shape:  (1002,)
+y_test shape:  (334,)
+
+we will use the standard scaling class from the sklearn library for the scaling process
+we will fit transform the xtrain also transform the xtest
+
+Model BUilding
+
+importing the library
+
+Linear Regression
+
+creating the class lm
+fit the model
+check the coefficients
+check the cross val score of the model(-mse = 0.19)
+predicting the xtrain
+checking the r2 score [78]
+since there are multiple independent variable
+checking the adjusted r2 score [74]
+checking the residual plot (which is not normally distributed)
+checking the Homoscedasticity plot (which is not showing the variance same across all the level)
+Therefore the Linear Regression is not suitable
+
+
+Ridge 
+fit the model
+check the coefficients
+using the grid search cv for hyperparamter tuning
+'alpha': [0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 2.0, 3.0, 4.0, 5.0]
+here the best param is 2.0 and best score is -0.1942
+cv_results_ from the grid are stored in the cv_results variable for the comparison of the negative mean sqaure error and the alpha
+param alpha is converted to int type and the plot of param_alpha with mean_train_score and mean_test_score is plotted
+
+again creating a class with the best param from the grid (2) and fitting the Xtrain ytrain
+Training R²: 76.43 %
+Training Adjusted R²: 76.21 %
+Test R²: 73.74 %
+Test Adjusted R²: 73.5 %
+Neg-MSE: -0.21168890422785874
+
+Lasso
+Grid search cv
+{'alpha': [0.000001, 0.00005, 0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1]}
+fit the grid on hte Xtrain ytrain
+best_params = 1e-06
+best_score = -0.19
+as in the ridge cv_results are saved in the cvresults
+and the graph of the param_alpha with the mean_train_score and mean_test_score is plotted 
+the model is fitted with the best param 1e-06
+Training R²: 76.42 %
+Training Adjusted R²: 76.21 %
+Test R²: 73.72 %
+Test Adjusted R²: 73.48 %
+Neg-MSE: -0.21169138953110805
+
+
+SVR
+Create a class for the svr
+fit the xtrain ytrain
+predict the xtrain
+calculate the r2 for train
+calculate the adjusted r2 for train
+predict the xtest
+calculate the r2 for test
+calculate the adjusted r2 for test
+
+plot the scatter plot for the ytest and ytestpred
+now using the gridsearchcv
+{'C':[1,2,3,4,5], 'gamma':[1,0.1,0.01,0.001], 'kernel':['rbf']}
+
+bestscore = 0.139
+best param {'C': 5, 'gamma': 0.01, 'kernel': 'rbf'}
+
+train the model by selecting the best param
+calulating the score for the train and test
+again ploting the scatter plot
+Training R²: 83.12 %
+Training Adjusted R²: 82.99 %
+Test R²: 78.02 %
+Test Adjusted R²: 77.82 %
+Neg-MSE: -0.1545758836418368
+
+Decision Trees
+fit the model to the train set 
+r2score for the train set is 0.99
+r2score for the test set is 0.51
+overfitting
+gridsearchcv
+{'criterion':['squared_error','absolute_error'], 'max_depth':[3,4,5,6]}
+best param = {'criterion': 'squared_error', 'max_depth': 5}
+best score -0.16
+
+Training R²: 81.63 %
+Training Adjusted R²: 81.46 %
+Test R²: 76.82 %
+Test Adjusted R²: 76.61 %
+Neg-MSE: -0.1793302740507286
+
+
+Random Forest
+Random Forest model with default parameters is showing adjusted R² as 0.9683 for training set but the same for test set is 0.7706. This also means there is overfitting. Hence, we need to perform hyperparameter tuning in order to find the best parameter.
+Grid search cv 
+{'criterion':['squared_error'],'max_depth':[3,4,5,6],'n_estimators':[20, 50, 80, 100]}
+best params = {'criterion': 'squared_error', 'max_depth': 5, 'n_estimators': 100}
+best score -0.1570365758232553
+
+Training R²: 82.36 %
+Training Adjusted R²: 82.20 %
+Test R²: 76.78 %
+Test Adjusted R²: 76.57 %
+Neg-MSE: -0.17063486520865587
+
+
+
+Conclusion
+
+Ridge
+Adjusted R² : 0.7350106755235994
+Cost Function : -0.21168890422785874
+Lasso
+Adjusted R² : 0.7348352209598985
+Cost Function : -0.21169138953110805
+SVM
+Adjusted R² : 0.7781735945860603
+Cost Function : -0.1545758836418368
+Decision Tree
+Adjusted R² : 0.7661451540277032
+Cost Function : -0.17933027405072868
+Random Forest
+Adjusted R² : 0.7656718813646982
+Cost Function : -0.17063486520865587
+
+
+Therefore we will use the svm as the model in the production
+
+
+
+
+
+
+
+
+
+
+
